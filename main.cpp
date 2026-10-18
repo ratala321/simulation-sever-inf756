@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <string>
 
-int main(int argc, char* argv[])
+int run(int argc, char* argv[])
 {
 	using namespace asio::ip;
 
