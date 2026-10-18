@@ -24,6 +24,8 @@ if (WIN32)
     )
 endif()
 
+add_subdirectory(src bin)
+
 add_library(asio INTERFACE)
 target_include_directories(asio INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/extern/asio/include")
 target_compile_definitions(asio

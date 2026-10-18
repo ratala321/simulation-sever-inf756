@@ -1,0 +1,2 @@
+add_subdirectory(controller)
+target_link_libraries(simulation_server PRIVATE controller)
