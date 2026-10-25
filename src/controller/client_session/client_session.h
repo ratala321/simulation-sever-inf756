@@ -22,7 +22,7 @@ private:
 	constinit static inline std::atomic<uint64_t> clientIdCounter{ 0 };
 
 	SocketTCP socket;
-	const uint64_t clientId;
+	uint64_t clientId;
 };
 
 };
