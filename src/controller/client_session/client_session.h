@@ -14,7 +14,7 @@ class ClientSession
 public:
 	using SocketTCP = asio::ip::tcp::socket;
 
-	ClientSession(SocketTCP socket);
+	ClientSession(SocketTCP socket) noexcept;
 	ClientSession(const ClientSession&) = delete;
 	ClientSession& operator=(const ClientSession&) = delete;
 
