@@ -3,6 +3,9 @@
 
 #include <asio/ip/tcp.hpp>
 
+#include <atomic>
+#include <cstdint>
+
 namespace SCS
 {
 
@@ -16,7 +19,10 @@ public:
 	ClientSession& operator=(const ClientSession&) = delete;
 
 private:
+	constinit static inline std::atomic<uint64_t> clientIdCounter{ 0 };
+
 	SocketTCP socket;
+	const uint64_t clientId;
 };
 
 };
