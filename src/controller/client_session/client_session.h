@@ -12,6 +12,8 @@ public:
 	using SocketTCP = asio::ip::tcp::socket;
 
 	ClientSession(SocketTCP socket);
+	ClientSession(const ClientSession&) = delete;
+	ClientSession& operator=(const ClientSession&) = delete;
 
 private:
 	SocketTCP socket;
