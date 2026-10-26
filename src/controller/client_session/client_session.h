@@ -1,6 +1,8 @@
 #ifndef SCS_CLIENT_SESSION
 #define SCS_CLIENT_SESSION
 
+#include "client_id.h"
+
 #include <asio/ip/tcp.hpp>
 
 #include <atomic>
@@ -21,10 +23,10 @@ public:
 	ClientSession& operator=(ClientSession&& other) noexcept = default;
 
 private:
-	constinit static inline std::atomic<uint64_t> clientIdCounter{ 0 };
+	constinit static inline std::atomic<SCS::ClientIdType> clientIdCounter{ 0 };
 
 	SocketTCP socket;
-	uint64_t clientId;
+	SCS::ClientIdType clientId;
 };
 
 };
