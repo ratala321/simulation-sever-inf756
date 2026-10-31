@@ -22,6 +22,8 @@ public:
 	ClientSession(ClientSession&& other) noexcept = default;
 	ClientSession& operator=(ClientSession&& other) noexcept = default;
 
+	void start();
+
 private:
 	constinit static inline std::atomic<SCS::ClientIdType> clientIdCounter{ 0 };
 
