@@ -1,2 +1,5 @@
 add_subdirectory(controller)
-target_link_libraries(simulation_server PRIVATE controller)
+target_link_libraries(simulation_server PUBLIC controller)
+
+add_subdirectory(rpc_message)
+target_link_libraries(simulation_server PUBLIC rpc_message)
