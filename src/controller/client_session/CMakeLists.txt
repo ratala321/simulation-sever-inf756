@@ -1,4 +1,5 @@
 add_library(client_session OBJECT
+	client_id.h
 	client_session.h
 	client_session.cpp
 )
