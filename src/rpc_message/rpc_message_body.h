@@ -3,13 +3,12 @@
 
 #include "rpc_message_buffer.h"
 #include "rpc_message_type.h"
-#include "serialization/serialization.h"
 #include "../controller/client_session/client_id.h"
 
 #include <array>
 #include <cstdint>
 
-namespace SCS
+namespace SCS::RPC
 {
 
 template<RpcMessageType T>
@@ -21,26 +20,18 @@ struct RpcMessageBody<RpcMessageType::idSync>
 	SCS::ClientIdType assignedId;
 };
 
-template<RpcMessageType T>
-RpcMessageBuffer serialize(const RpcMessageBody<T>&)
+template <template <RpcMessageType> class F>
+struct conversion_tester
 {
-	static_assert(false, "non existing serialization for RpcMessageBody of type provided");
-	return {};
-}
+	template <RpcMessageType T>
+	conversion_tester(const F<T>&);
+};
 
-template<>
-RpcMessageBuffer serialize(const RpcMessageBody<RpcMessageType::idSync>& toSerialize)
+template <class From, template <RpcMessageType> class To>
+struct is_instance_of
 {
-	using RawEnumType = std::underlying_type_t<RpcMessageType>;
-
-	constexpr size_t sizeOfBuffer = sizeof(RpcMessageType::idSync) + sizeof(toSerialize.assignedId);
-	uint8_t buffer[sizeOfBuffer];
-
-	SCS::Serialization::serializeRaw(buffer, static_cast<RawEnumType>(RpcMessageType::idSync));
-	SCS::Serialization::serializeRaw(buffer, toSerialize.assignedId);
-
-	return { .buffer = buffer, .sizeOfBuffer = sizeOfBuffer};
-}
+	static constexpr bool value = std::is_convertible<From, conversion_tester<To>>::value;
+};
 
 };
 

@@ -4,7 +4,7 @@
 #include "rpc_message_type.h"
 #include "rpc_message_body.h"
 
-namespace SCS
+namespace SCS::RPC
 {
 
 template <RpcMessageType T>

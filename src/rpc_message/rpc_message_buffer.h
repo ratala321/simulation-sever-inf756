@@ -2,9 +2,15 @@
 #define SCS_RPC_MESSAGE_BUFFER
 
 #include <cstdint>
+#include <vector>
 
-namespace SCS
+namespace SCS::RPC
 {
+
+using ReadBuffer = std::vector<uint8_t>;
+using WriteBuffer = struct RpcMessageBuffer;
+
+constexpr size_t maxReadingBufferSize = 1024;
 
 struct RpcMessageBuffer
 {

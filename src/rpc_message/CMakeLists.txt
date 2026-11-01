@@ -1,10 +1,14 @@
 add_library(rpc_message OBJECT
+	empty.cpp
 	rpc_message.h
 	rpc_message_buffer.h
 	rpc_message_type.h
 	rpc_message_body.h
+	rpc_message_body_erasure.h
+	rpc_message_trait.h
+	rpc_deserialize.h
+	rpc_serialize.h
 )
-set_target_properties(rpc_message PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(rpc_message PUBLIC .)
 
