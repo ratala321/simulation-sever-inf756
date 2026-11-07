@@ -18,6 +18,9 @@ DeserializationResult deserialize(const ReadBuffer& toDeserialize);
 template<>
 DeserializationResult deserialize<RpcMessageType::idSync>(const ReadBuffer& toDeserialize);
 
+template<>
+DeserializationResult deserialize<RpcMessageType::ping>(const ReadBuffer& toDeserialize);
+
 };
 
 #endif // !SCS_RPC_DESERIALIZE

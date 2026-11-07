@@ -19,4 +19,10 @@ RpcMessageBuffer serialize(const IdSyncMessageBody& toSerialize)
 	return { .buffer = buffer, .sizeOfBuffer = sizeOfBuffer };
 }
 
+template<>
+RpcMessageBuffer serialize(const PingMessageBody& toSerialize)
+{
+	return RpcMessageBuffer{ .buffer = nullptr, .sizeOfBuffer = 0 };
+}
+
 };

@@ -10,6 +10,8 @@ enum class RpcMessageType : uint16_t
 {
 	// Sent to client upon connexion, to indentify itself with the server.
 	idSync = 0,
+	// Sent from client to signal the server. The server then signal back to the client.
+	ping,
 };
 
 };
