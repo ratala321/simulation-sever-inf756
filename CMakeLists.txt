@@ -1,5 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.26)
 project(simulation_server CXX)
+include(CTest)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,16 +16,13 @@ if (WIN32)
     add_compile_definitions(_WIN32_WINNT=0x0A00)
 endif()
 
-add_executable(simulation_server main.cpp)
+add_library(simulation_server STATIC main.cpp)
 
-if (WIN32)
-    target_link_libraries(simulation_server PRIVATE
-        ws2_32
-        wsock32
-    )
-endif()
+add_executable(simulation_server_executable bootstrap.cpp)
+target_link_libraries(simulation_server_executable PRIVATE simulation_server)
 
 add_subdirectory(src bin)
+add_subdirectory(test)
 
 add_library(asio INTERFACE)
 target_include_directories(asio INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/extern/asio/include")
