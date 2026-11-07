@@ -1,6 +1,7 @@
 ﻿cmake_minimum_required(VERSION 3.26)
 project(simulation_server CXX)
 include(CTest)
+include(${CMAKE_CURRENT_SOURCE_DIR}/build_system/fetch_dependencies.cmake)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,23 +27,5 @@ target_link_libraries(simulation_server PUBLIC controller)
 
 add_subdirectory(test)
 
-add_library(asio INTERFACE)
-target_include_directories(asio INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/extern/asio/include")
-target_compile_definitions(asio
-    INTERFACE
-    ASIO_STANDALONE
-    ASIO_NO_DEPRECATED
-)
 target_link_libraries(simulation_server PRIVATE asio)
-
-include(FetchContent)
-FetchContent_Declare(
-    external-spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG        v1.17.0
-    FIND_PACKAGE_ARGS NAMES spdlog
-)
-FetchContent_MakeAvailable(external-spdlog)
-
-target_include_directories(simulation_server PRIVATE INTERFACE_INCLUDE_DIRECTORIES)
 target_link_libraries(simulation_server PRIVATE spdlog::spdlog)
