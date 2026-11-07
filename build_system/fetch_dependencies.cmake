@@ -1,0 +1,17 @@
+include(FetchContent)
+
+add_library(asio INTERFACE)
+target_include_directories(asio INTERFACE "${CMAKE_SOURCE_DIR}/extern/asio/include")
+target_compile_definitions(asio
+    INTERFACE
+    ASIO_STANDALONE
+    ASIO_NO_DEPRECATED
+)
+
+FetchContent_Declare(
+    external-spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG        v1.17.0
+    FIND_PACKAGE_ARGS NAMES spdlog
+)
+FetchContent_MakeAvailable(external-spdlog)
