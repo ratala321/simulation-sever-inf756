@@ -10,7 +10,7 @@ RpcMessageBuffer serialize(const IdSyncMessageBody& toSerialize)
 {
 	using RawEnumType = std::underlying_type_t<RpcMessageType>;
 
-	constexpr size_t sizeOfBuffer = sizeof(RpcMessageType::idSync) + sizeof(toSerialize.assignedId);
+	static constexpr size_t sizeOfBuffer = sizeof(RpcMessageType::idSync) + sizeof(IdSyncMessageBody);
 	uint8_t buffer[sizeOfBuffer];
 
 	SCS::Serialization::serializeRaw(buffer, static_cast<RawEnumType>(RpcMessageType::idSync));
