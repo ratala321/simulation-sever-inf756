@@ -1,7 +1,8 @@
 #ifndef SCS_CONTROLLER
 #define SCS_CONTROLLER
 
-#include "client_session/client_session.h"
+#include "client_session.h"
+#include "controller_api/controller_api.h"
 
 #include <asio/awaitable.hpp>
 #include <asio/io_context.hpp>
@@ -26,7 +27,7 @@ public:
 	asio::io_context& ioContext;
 };
 
-class Controller
+class Controller : public ControllerAPI
 {
 public:
 	using Acceptor = asio::ip::tcp::acceptor;

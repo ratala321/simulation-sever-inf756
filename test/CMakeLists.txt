@@ -1,4 +1,5 @@
 include(FetchContent)
+include(GoogleTest)
 
 FetchContent_Declare(
     external-googletest
@@ -15,5 +16,4 @@ add_executable(unit_tests
 )
 target_link_libraries(unit_tests PRIVATE simulation_server gtest_main)
 
-include(GoogleTest)
 gtest_discover_tests(unit_tests)

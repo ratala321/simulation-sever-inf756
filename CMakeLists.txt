@@ -21,13 +21,6 @@ add_library(simulation_server STATIC main.cpp)
 add_executable(simulation_server_executable bootstrap.cpp)
 target_link_libraries(simulation_server_executable PRIVATE simulation_server)
 
-if (WIN32)
-    target_link_libraries(simulation_server PRIVATE
-        ws2_32
-        wsock32
-    )
-endif()
-
 add_subdirectory(src bin)
 add_subdirectory(test)
 
