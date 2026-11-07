@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace SCS
+namespace SCS::RPC
 {
 
 struct RpcMessageBuffer

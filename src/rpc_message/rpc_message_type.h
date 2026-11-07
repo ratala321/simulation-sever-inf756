@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace SCS
+namespace SCS::RPC
 {
 
 enum class RpcMessageType : uint16_t

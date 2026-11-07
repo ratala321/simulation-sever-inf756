@@ -9,7 +9,7 @@
 #include <array>
 #include <cstdint>
 
-namespace SCS
+namespace SCS::RPC
 {
 
 template<RpcMessageType T>
