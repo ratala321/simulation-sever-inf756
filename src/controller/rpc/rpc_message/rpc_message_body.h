@@ -21,7 +21,13 @@ struct RpcMessageBody<RpcMessageType::idSync>
 };
 using IdSyncMessageBody = RpcMessageBody<RpcMessageType::idSync>;
 
-using DeserializationResult = std::variant<std::monostate, IdSyncMessageBody>;
+template<>
+struct RpcMessageBody<RpcMessageType::ping>
+{
+};
+using PingMessageBody = RpcMessageBody<RpcMessageType::ping>;
+
+using DeserializationResult = std::variant<std::monostate, IdSyncMessageBody, PingMessageBody>;
 
 };
 

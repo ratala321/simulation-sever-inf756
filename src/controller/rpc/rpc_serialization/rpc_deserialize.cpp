@@ -31,4 +31,10 @@ DeserializationResult deserialize<RpcMessageType::idSync>(const ReadBuffer& toDe
 	return RpcMessageBody<RpcMessageType::idSync>{.assignedId = clientId};
 }
 
+template<>
+DeserializationResult deserialize<RpcMessageType::ping>(const ReadBuffer& toDeserialize)
+{
+	return RpcMessageBody<RpcMessageType::ping>{};
+}
+
 };

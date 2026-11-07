@@ -19,6 +19,9 @@ RpcMessageBuffer serialize(const RpcMessageBody<T>&)
 template<>
 RpcMessageBuffer serialize(const IdSyncMessageBody& toSerialize);
 
+template<>
+RpcMessageBuffer serialize(const PingMessageBody& toSerialize);
+
 };
 
 #endif // !SCS_RPC_SERIALIZE
