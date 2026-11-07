@@ -22,6 +22,8 @@ add_executable(simulation_server_executable bootstrap.cpp)
 target_link_libraries(simulation_server_executable PRIVATE simulation_server)
 
 add_subdirectory(src bin)
+target_link_libraries(simulation_server PUBLIC controller)
+
 add_subdirectory(test)
 
 add_library(asio INTERFACE)

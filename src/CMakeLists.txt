@@ -4,7 +4,6 @@ if (GENERATE_ASM AND CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 add_subdirectory(controller)
-target_link_libraries(simulation_server PUBLIC controller)
 
 add_subdirectory(lang)
 
