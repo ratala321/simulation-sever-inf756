@@ -1,0 +1,124 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 26,
+    "patch": 0
+  },
+  "include": [
+    "build_system/presets/generate_asm.json"
+  ],
+  "configurePresets": [
+    {
+      "name": "win-x64-debug",
+      "displayName": "Windows x64 Debug",
+      "description": "Sets Ninja generator, compilers, x64 architecture, build and install directory, debug build type",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "win-x64-release",
+      "displayName": "Windows x64 Release",
+      "description": "Sets Ninja generator, compilers, x64 architecture, build and install directory, release build type",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "win-x64-debug-asm",
+      "inherits": [
+        "generate-asm",
+        "win-x64-debug"
+      ]
+    },
+    {
+      "name": "win-x64-release-asm",
+      "inherits": [
+        "generate-asm",
+        "win-x64-release"
+      ]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "default-build",
+      "displayName": "Default Build",
+      "configurePreset": "win-x64-debug",
+      "cleanFirst": false,
+      "hidden": true
+    },
+    {
+      "name": "clean-build",
+      "displayName": "Clean Build",
+      "configurePreset": "win-x64-debug",
+      "cleanFirst": true,
+      "hidden": true
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default-test",
+      "displayName": "Default Test",
+      "configurePreset": "win-x64-debug"
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "win-x64-debug-test",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "win-x64-debug"
+        },
+        {
+          "type": "build",
+          "name": "default-build"
+        },
+        {
+          "type": "test",
+          "name": "default-test"
+        }
+      ]
+    }
+  ],
+  "vendor": {
+    "microsoft.com/VisualStudioSettings/CMake/1.0": {
+      "hostOS": [ "Windows" ]
+    }
+  }
+}
