@@ -24,8 +24,7 @@ void SCS::ClientSession::start()
 		socket.get_executor(),
 		[this] -> asio::awaitable<void>
 		{
-			// TODO SCS-21: add serial id number, choose unique id for client;
-			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{};
+			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
 			SCS::RPC::WriteBuffer data = SCS::RPC::serialize(body);
 			co_await asio::async_write(socket, asio::buffer(data.buffer, data.sizeOfBuffer), asio::cancel_after(std::chrono::seconds(5)));
 		},
