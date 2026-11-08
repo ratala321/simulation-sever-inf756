@@ -25,6 +25,8 @@ public:
 	void start();
 	void listen();
 
+	constexpr SCS::ClientIdType id() const noexcept { return clientId; }
+
 private:
 	constinit static inline std::atomic<SCS::ClientIdType> clientIdCounter{ 0 };
 

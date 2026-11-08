@@ -13,5 +13,7 @@ target_link_libraries(controller PUBLIC controller_api)
 
 add_subdirectory(rpc)
 
+add_subdirectory(message_processor)
+
 target_link_libraries(controller PRIVATE spdlog::spdlog)
 target_link_libraries(controller PUBLIC asio)
