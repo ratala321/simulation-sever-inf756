@@ -2,8 +2,7 @@
 #define SCS_CLIENT_SESSION
 
 #include "client_id.h"
-
-#include <asio/ip/tcp.hpp>
+#include "network_definitions.h"
 
 #include <atomic>
 #include <cstdint>
@@ -14,8 +13,6 @@ namespace SCS
 class ClientSession
 {
 public:
-	using SocketTCP = asio::ip::tcp::socket;
-
 	explicit ClientSession(SocketTCP socket) noexcept;
 	ClientSession(const ClientSession&) = delete;
 	ClientSession& operator=(const ClientSession&) = delete;

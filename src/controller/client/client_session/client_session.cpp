@@ -1,5 +1,7 @@
 #include "client_session.h"
 
+#include "message_queue.h"
+
 #include "rpc_serialize.h"
 #include "rpc_deserialize.h"
 
@@ -56,6 +58,7 @@ void SCS::ClientSession::listen()
 			SCS::RPC::DeserializationResult dr = SCS::RPC::deserialize(buffer);
 
 			// TODO SCS-19: send message to queue, and go in listen mode again !
+			SCS::MessageQueue::get().registerMessage({.clientId = clientId, .socket = socket, .message = dr});
 		},
 		[this](std::exception_ptr e)
 		{
