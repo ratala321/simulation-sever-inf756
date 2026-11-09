@@ -25,13 +25,14 @@ public:
 	void start();
 	void listen();
 
+	SocketTCP& connexion() noexcept { return socket; }
 	constexpr SCS::ClientIdType id() const noexcept { return clientId; }
 
 private:
 	constinit static inline std::atomic<SCS::ClientIdType> clientIdCounter{ 0 };
 
 	SocketTCP socket;
-	SCS::ClientIdType clientId;
+	const SCS::ClientIdType clientId;
 };
 
 };
