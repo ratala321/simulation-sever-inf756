@@ -40,8 +40,7 @@ DeserializationResult deserializeBody(const RpcMessageHeader header, const ReadR
 	case RpcMessageType::idSync:
 		return deserialize<RpcMessageType::idSync>(bodyBuffer);
 	case RpcMessageType::ping:
-		// FIXME, ping not idSync!
-		return deserialize<RpcMessageType::idSync>(bodyBuffer);
+		return deserialize<RpcMessageType::ping>(bodyBuffer);
 	}
 
 	throw non_supported_message_type_for_deserialization{};
