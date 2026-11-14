@@ -1,5 +1,7 @@
 #include "client_session.h"
 
+#include "message_dispatcher.h"
+
 #include "rpc_serialize.h"
 #include "rpc_deserialize.h"
 
@@ -20,7 +22,7 @@ SCS::ClientSession::ClientSession(SocketTCP socket) noexcept
 
 void SCS::ClientSession::start()
 {
-    asio::co_spawn(
+	asio::co_spawn(
 		socket.get_executor(),
 		[this] -> asio::awaitable<void>
 		{
@@ -34,7 +36,7 @@ void SCS::ClientSession::start()
 			{
 				if (e) { std::rethrow_exception(e); }
 			}
-			catch(...)
+			catch (...)
 			{
 				spdlog::error("Can't properly start client session");
 				throw;
@@ -45,7 +47,7 @@ void SCS::ClientSession::start()
 
 void SCS::ClientSession::listen()
 {
-    asio::co_spawn(
+	asio::co_spawn(
 		socket.get_executor(),
 		[this] -> asio::awaitable<void>
 		{
@@ -55,7 +57,9 @@ void SCS::ClientSession::listen()
 
 			SCS::RPC::DeserializationResult dr = SCS::RPC::deserialize(buffer);
 
-			// TODO SCS-19: send message to queue, and go in listen mode again !
+			SCS::MessageDispatcher::registerMessage({ .clientId = clientId, .socket = socket, .message = dr });
+
+			// TODO SCS-22: go in listen mode again !
 		},
 		[this](std::exception_ptr e)
 		{
@@ -63,7 +67,7 @@ void SCS::ClientSession::listen()
 			{
 				if (e) { std::rethrow_exception(e); }
 			}
-			catch(...)
+			catch (...)
 			{
 				spdlog::error("Can't listen to server via client session with id : {}", clientId);
 				throw;

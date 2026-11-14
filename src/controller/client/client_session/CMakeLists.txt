@@ -6,6 +6,6 @@ add_library(client_session OBJECT
 target_include_directories(client_session PUBLIC .)
 
 target_link_libraries(client_session PUBLIC client_datatype network_definitions)
+target_link_libraries(client_session PRIVATE rpc message_dispatcher)
 
-target_link_libraries(client_session PRIVATE rpc)
 target_link_libraries(client_session PRIVATE asio spdlog::spdlog)
