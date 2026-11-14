@@ -51,11 +51,20 @@ void SCS::ClientSession::listen()
 		socket.get_executor(),
 		[this] -> asio::awaitable<void>
 		{
-			SCS::RPC::ReadBuffer buffer;
-			buffer.reserve(SCS::RPC::maxReadingBufferSize);
-			co_await asio::async_read(socket, asio::dynamic_buffer(buffer, buffer.capacity()));
+			SCS::RPC::HeaderBuffer headerBuff;
+			co_await asio::async_read(socket, asio::mutable_buffer{ headerBuff, sizeof(headerBuff) });
 
-			SCS::RPC::DeserializationResult dr = SCS::RPC::deserialize(buffer);
+			SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff);
+
+			const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
+			SCS::RPC::ReadBuffer bodyBuffer;
+			if (bodyBufferSize != 0)
+			{
+				bodyBuffer.reserve(bodyBufferSize);
+
+				co_await asio::async_read(socket, asio::dynamic_buffer(bodyBuffer, bodyBuffer.capacity()));
+			}
+			SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
 
 			SCS::MessageDispatcher::registerMessage({ .clientId = clientId, .socket = socket, .message = dr });
 

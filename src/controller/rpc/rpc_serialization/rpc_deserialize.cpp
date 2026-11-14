@@ -5,34 +5,59 @@
 namespace SCS::RPC
 {
 
-DeserializationResult deserialize(const ReadBuffer& toDeserialize)
+DeserializationResult deserialize(const ReadRawBuffer msgBuffer)
 {
-	std::underlying_type_t<SCS::RPC::RpcMessageType> msgType;
-	SCS::Serialization::deserializeRaw(toDeserialize.data(), msgType);
+	RpcMessageHeader header = deserializeHeader(msgBuffer);
 
-	switch (static_cast<SCS::RPC::RpcMessageType>(msgType))
+	return deserializeBody(header, msgBuffer + sizeof(header));
+}
+
+RpcMessageHeader deserializeHeader(const ReadRawBuffer headerBuffer) noexcept
+{
+	std::underlying_type_t<SCS::RPC::RpcMessageType> nonEnumType;
+	SCS::Serialization::deserializeRaw(headerBuffer, nonEnumType);
+
+	return  { .type = static_cast<SCS::RPC::RpcMessageType>(nonEnumType) };
+}
+
+size_t getBodyBufferSize(const RpcMessageType type)
+{
+	switch (type)
 	{
 	case RpcMessageType::idSync:
-		return deserialize<RpcMessageType::idSync>(toDeserialize);
+		return sizeof(RpcMessageBody<RpcMessageType::idSync>);
+	case RpcMessageType::ping:
+		return sizeof(RpcMessageBody<RpcMessageType::ping>);
+	}
+
+	throw non_supported_message_type_for_deserialization{};
+}
+
+DeserializationResult deserializeBody(const RpcMessageHeader header, const ReadRawBuffer bodyBuffer)
+{
+	switch (header.type)
+	{
+	case RpcMessageType::idSync:
+		return deserialize<RpcMessageType::idSync>(bodyBuffer);
+	case RpcMessageType::ping:
+		// FIXME, ping not idSync!
+		return deserialize<RpcMessageType::idSync>(bodyBuffer);
 	}
 
 	throw non_supported_message_type_for_deserialization{};
 }
 
 template<>
-DeserializationResult deserialize<RpcMessageType::idSync>(const ReadBuffer& toDeserialize)
+DeserializationResult deserialize<RpcMessageType::idSync>(const ReadRawBuffer toDeserialize)
 {
-	const uint8_t* data = toDeserialize.data();
-	data += sizeof(SCS::RPC::RpcMessageType);
-
 	SCS::ClientIdType clientId;
-	SCS::Serialization::deserializeRaw(data, clientId);
+	SCS::Serialization::deserializeRaw(toDeserialize, clientId);
 
 	return RpcMessageBody<RpcMessageType::idSync>{.assignedId = clientId};
 }
 
 template<>
-DeserializationResult deserialize<RpcMessageType::ping>(const ReadBuffer& toDeserialize)
+DeserializationResult deserialize<RpcMessageType::ping>(const ReadRawBuffer toDeserialize)
 {
 	return RpcMessageBody<RpcMessageType::ping>{};
 }
