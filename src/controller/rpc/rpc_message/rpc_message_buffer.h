@@ -7,14 +7,16 @@
 namespace SCS::RPC
 {
 
-using ReadBuffer = std::vector<uint8_t>;
+using BufferBaseType = uint8_t;
+using ReadBuffer = std::vector<BufferBaseType>;
+using ReadRawBuffer = BufferBaseType*;
 using WriteBuffer = struct RpcMessageBuffer;
 
 constexpr size_t maxReadingBufferSize = 1024;
 
 struct RpcMessageBuffer
 {
-	uint8_t* buffer;
+	BufferBaseType* buffer;
 	size_t sizeOfBuffer;
 };
 
