@@ -14,6 +14,7 @@ target_link_libraries(controller PUBLIC controller_api)
 add_subdirectory(rpc)
 
 add_subdirectory(message_processor)
+add_subdirectory(message_dispatcher)
 
 add_subdirectory(network)
 

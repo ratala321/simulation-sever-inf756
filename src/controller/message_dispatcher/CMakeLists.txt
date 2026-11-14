@@ -1,0 +1,9 @@
+add_library(message_dispatcher STATIC
+	message_dispatcher.cpp
+	message_dispatcher.h
+)
+
+target_include_directories(message_dispatcher PUBLIC .)
+
+target_link_libraries(message_dispatcher PUBLIC client_datatype network_definitions rpc)
+target_link_libraries(message_dispatcher PRIVATE lang message_processor)
