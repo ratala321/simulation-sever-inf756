@@ -24,6 +24,32 @@
 namespace
 {
 
+struct MockupClientController
+{
+	explicit MockupClientController(SCS::SocketTCP socket) : socket{ std::move(socket) }
+	{ }
+
+	asio::awaitable<SCS::RPC::DeserializationResult> readNextMessage()
+	{
+		SCS::RPC::HeaderBuffer hBuffer;
+		co_await asio::async_read(socket, asio::buffer(hBuffer));
+
+		const SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(hBuffer.data());
+		const auto s = SCS::RPC::getBodyBufferSize(header.type);
+
+		SCS::RPC::ReadBuffer buffer;
+		if (s != 0)
+		{
+			buffer.reserve(s);
+			co_await asio::async_read(socket, asio::buffer(buffer));
+		}
+
+		co_return SCS::RPC::deserializeBody(header, buffer.data());
+	}
+
+	SCS::SocketTCP socket;
+};
+
 struct MockupClientContext
 {
 	using Resolver = asio::ip::tcp::resolver;
@@ -44,12 +70,12 @@ struct MockupClientContext
 		context.run();
 	}
 
-	SCS::SocketTCP createSocket()
+	MockupClientController createClient()
 	{
 		SCS::SocketTCP socket{ context };
 		asio::connect(socket, endpoint);
 
-		return socket;
+		return MockupClientController{ std::move(socket) };
 	}
 
 	asio::io_context context;
@@ -93,32 +119,18 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 				};
 				MockupClientContext clientContext{ argv };
 
-				auto socket = clientContext.createSocket();
+				auto clientController = clientContext.createClient();
 
 				asio::co_spawn(
-					socket.get_executor(),
-					[&socket, &cv, &m, &testDone, &receivedIdSync] -> asio::awaitable<void>
+					clientController.socket.get_executor(),
+					[&clientController, &cv, &m, &testDone, &receivedIdSync] -> asio::awaitable<void>
 					{
-						SCS::RPC::HeaderBuffer hBuffer;
-						co_await asio::async_read(socket, asio::buffer(hBuffer));
-
-						const SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(hBuffer.data());
-						const auto s = SCS::RPC::getBodyBufferSize(header.type);
-
-						SCS::RPC::ReadBuffer buffer;
-						if (s != 0)
-						{
-							buffer.reserve(s);
-							co_await asio::async_read(socket, asio::buffer(buffer));
-						}
-
-						SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, buffer.data());
+						const auto dr = co_await clientController.readNextMessage();
 
 						std::visit(
 							SCS::Lang::Visitor{
-								[](auto&) { },
-								[&receivedIdSync](SCS::RPC::IdSyncMessageBody&) { receivedIdSync = true; },
-								[](SCS::RPC::PingMessageBody&) { },
+								[](auto&) { std::cerr << "received wrong message type in PingServerRespondsToClient :c";},
+								[&receivedIdSync](const SCS::RPC::IdSyncMessageBody&) { receivedIdSync = true; },
 							},
 							dr
 						);
