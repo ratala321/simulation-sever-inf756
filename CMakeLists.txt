@@ -18,6 +18,7 @@ if (WIN32)
 endif()
 
 add_library(simulation_server STATIC main.cpp)
+target_include_directories(simulation_server PUBLIC .)
 
 add_executable(simulation_server_executable bootstrap.cpp)
 target_link_libraries(simulation_server_executable PRIVATE simulation_server)
