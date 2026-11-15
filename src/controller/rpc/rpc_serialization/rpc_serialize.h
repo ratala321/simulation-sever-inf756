@@ -9,7 +9,7 @@ namespace SCS::RPC
 {
 
 template<RpcMessageType T>
-RpcMessageBuffer serialize(const RpcMessageBody<T>&)
+WriteBuffer serialize(const RpcMessageBody<T>&)
 {
 	static_assert(false, "non existing serialization for RpcMessageBody of type provided");
 	return {};
@@ -17,10 +17,10 @@ RpcMessageBuffer serialize(const RpcMessageBody<T>&)
 
 
 template<>
-RpcMessageBuffer serialize(const IdSyncMessageBody& toSerialize);
+WriteBuffer serialize(const IdSyncMessageBody& toSerialize);
 
 template<>
-RpcMessageBuffer serialize(const PingMessageBody& toSerialize);
+WriteBuffer serialize(const PingMessageBody& toSerialize);
 
 };
 

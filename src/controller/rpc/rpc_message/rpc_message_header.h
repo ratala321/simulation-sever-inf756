@@ -4,12 +4,12 @@
 #include "rpc_message_type.h"
 #include "rpc_message_buffer.h"
 
-#include <type_traits>
+#include <array>
 
 namespace SCS::RPC
 {
 
-using HeaderBuffer = BufferBaseType[sizeof(RpcMessageType) / sizeof(BufferBaseType)];
+using HeaderBuffer = std::array<BufferBaseType, sizeof(RpcMessageType) / sizeof(BufferBaseType)>;
 
 struct RpcMessageHeader
 {

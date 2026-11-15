@@ -27,8 +27,8 @@ void SCS::ClientSession::start()
 		[this] -> asio::awaitable<void>
 		{
 			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
-			SCS::RPC::WriteBuffer data = SCS::RPC::serialize(body);
-			co_await asio::async_write(socket, asio::buffer(data.buffer, data.sizeOfBuffer), asio::cancel_after(std::chrono::seconds(5)));
+			SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
+			co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
 		},
 		[](std::exception_ptr e)
 		{
@@ -51,24 +51,25 @@ void SCS::ClientSession::listen()
 		socket.get_executor(),
 		[this] -> asio::awaitable<void>
 		{
-			SCS::RPC::HeaderBuffer headerBuff;
-			co_await asio::async_read(socket, asio::mutable_buffer{ headerBuff, sizeof(headerBuff) });
-
-			SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff);
-
-			const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
-			SCS::RPC::ReadBuffer bodyBuffer;
-			if (bodyBufferSize != 0)
+			while (socket.is_open())
 			{
-				bodyBuffer.reserve(bodyBufferSize);
+				SCS::RPC::HeaderBuffer headerBuff;
+				co_await asio::async_read(socket, asio::buffer(headerBuff));
 
-				co_await asio::async_read(socket, asio::dynamic_buffer(bodyBuffer, bodyBuffer.capacity()));
+				SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff.data());
+
+				const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
+				SCS::RPC::ReadBuffer bodyBuffer;
+				if (bodyBufferSize != 0)
+				{
+					bodyBuffer.reserve(bodyBufferSize);
+
+					co_await asio::async_read(socket, asio::buffer(bodyBuffer));
+				}
+				SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
+
+				SCS::MessageDispatcher::registerMessage({ .clientId = clientId, .socket = socket, .message = dr });
 			}
-			SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
-
-			SCS::MessageDispatcher::registerMessage({ .clientId = clientId, .socket = socket, .message = dr });
-
-			// TODO SCS-22: go in listen mode again !
 		},
 		[this](std::exception_ptr e)
 		{
