@@ -18,6 +18,8 @@ void registerMessage(MessageData toRegister)
 			[](const std::monostate) {},
 			[&toRegister](const auto& msg)
 			{
+				// TODO SCS-29: send to message_write_queue or message_write_pump
+				// thread or coroutine ? imo thread is better.
 				SCS::RPC::Processor::processRpcMessage(toRegister.client, toRegister.clientId, toRegister.socket, msg);
 			},
 		},
