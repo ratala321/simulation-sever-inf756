@@ -125,7 +125,7 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 
 	{
 		std::unique_lock lock{ m };
-		cv.wait(lock, [&testDone] {return testDone;});
+		cv.wait_for(lock, std::chrono::seconds(2), [&testDone] {return testDone;});
 	}
 
 	std::raise(SIGINT);
