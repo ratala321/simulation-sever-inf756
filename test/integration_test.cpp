@@ -100,7 +100,7 @@ void runServer()
 class IntegrationTestSuite : public ::testing::Test {
 };
 
-TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
+TEST_F(IntegrationTestSuite, IdSyncServerOnClientConnexion) {
 	try
 	{
 		std::mutex m;
