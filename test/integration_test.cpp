@@ -47,10 +47,18 @@ struct MockupClientController
 		if (s != 0)
 		{
 			buffer.reserve(s);
-			co_await asio::async_read(socket, asio::buffer(buffer));
+			co_await asio::async_read(socket, asio::buffer(buffer, buffer.capacity()));
 		}
 
 		co_return SCS::RPC::deserializeBody(header, buffer.data());
+	}
+
+	template<SCS::RPC::RpcMessageType T>
+	asio::awaitable<void> sendMessage()
+	{
+		SCS::RPC::RpcMessageBody<T> body{};
+		SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
+		co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
 	}
 
 	SCS::SocketTCP socket;
@@ -110,15 +118,15 @@ TEST_F(IntegrationTestSuite, IdSyncServerOnClientConnexion) {
 
 		std::thread tserver{ [] { runServer(); } };
 
-		std::this_thread::sleep_for(std::chrono::microseconds(1));
+		std::this_thread::sleep_for(std::chrono::microseconds(50));
+
+		MockupClientContext clientContext{ testArgv };
+
+		auto clientController = clientContext.createClient();
 
 		std::thread tclient{
-			[&m, &cv, &testDone, &receivedIdSync]
+			[&m, &cv, &testDone, &receivedIdSync, &clientContext, &clientController]
 			{
-				MockupClientContext clientContext{ testArgv };
-
-				auto clientController = clientContext.createClient();
-
 				asio::co_spawn(
 					clientController.socket.get_executor(),
 					[&clientController, &cv, &m, &testDone, &receivedIdSync] -> asio::awaitable<void>
@@ -173,6 +181,134 @@ TEST_F(IntegrationTestSuite, IdSyncServerOnClientConnexion) {
 		}
 
 		EXPECT_EQ(receivedIdSync, true);
+	}
+	catch (...)
+	{
+		std::cerr << "unknown error in PingServerRespondsToClient" << std::endl;
+		ADD_FAILURE();
+	}
+}
+
+TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
+	try
+	{
+		std::mutex m;
+		std::condition_variable cv;
+		bool testDone = false;
+		std::atomic<bool> receivedPing = false;
+
+		std::thread tserver{ [] { runServer(); } };
+
+		std::this_thread::sleep_for(std::chrono::microseconds(50));
+
+		MockupClientContext clientContext{ testArgv };
+
+		auto clientController = clientContext.createClient();
+
+		std::thread tclient{
+			[&m, &cv, &testDone, &receivedPing, &clientContext, &clientController]
+			{
+				asio::co_spawn(
+					clientController.socket.get_executor(),
+					[&clientController, &cv, &m, &testDone, &receivedPing] -> asio::awaitable<void>
+					{
+						// skip idSync
+						const auto sync = co_await clientController.readNextMessage();
+
+						std::visit(
+							SCS::Lang::Visitor{
+								[](auto&) { std::cerr << "sync received wrong message type in PingServerRespondsToClient :c\n";},
+								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
+							},
+							sync
+						);
+
+						//co_await clientController.sendMessage<SCS::RPC::RpcMessageType::ping>();
+
+						const auto dr = co_await clientController.readNextMessage();
+
+						std::visit(
+							SCS::Lang::Visitor{
+								[](auto&) { std::cerr << "dr received wrong message type in PingServerRespondsToClient :c\n";},
+								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
+							},
+							dr
+						);
+
+						const auto hello = co_await clientController.readNextMessage();
+
+						std::visit(
+							SCS::Lang::Visitor{
+								[](auto&) { std::cerr << "hello received wrong message type in PingServerRespondsToClient :c\n";},
+								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
+							},
+							hello
+						);
+						std::cout << "hello called" << std::endl;
+
+						const auto nani = co_await clientController.readNextMessage();
+
+						std::visit(
+							SCS::Lang::Visitor{
+								[](auto&) { std::cerr << "nani received wrong message type in PingServerRespondsToClient :c\n";},
+								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
+							},
+							nani
+						);
+						std::cout << "nani called" << std::endl;
+
+						const auto wtf = co_await clientController.readNextMessage();
+						std::cout << "wtf called" << std::endl;
+
+						std::visit(
+							SCS::Lang::Visitor{
+								[](auto&) { std::cerr << "wtf received wrong message type in PingServerRespondsToClient :c\n";},
+								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
+							},
+							wtf
+						);
+
+						{
+							std::lock_guard _{ m };
+							testDone = true;
+						}
+						cv.notify_one();
+					},
+					[&cv, &m, &testDone](std::exception_ptr e)
+					{
+						try
+						{
+							if (e)
+							{
+								std::rethrow_exception(e);
+							}
+						}
+						catch (...)
+						{
+							std::cerr << "error in client context";
+						}
+					}
+				);
+				clientContext.run();
+			}
+		};
+
+		{
+			std::unique_lock lock{ m };
+			cv.wait_for(lock, std::chrono::seconds(10), [&testDone] {return testDone;});
+		}
+
+		std::raise(SIGINT);
+		if (tserver.joinable())
+		{
+			tserver.join();
+		}
+		if (tclient.joinable())
+		{
+			tclient.join();
+		}
+
+		EXPECT_EQ(receivedPing, true);
 	}
 	catch (...)
 	{

@@ -61,30 +61,22 @@ void SCS::ClientSession::listen()
 			// TODO SCS-28: break while when is pending deletion
 			while (self->socket.is_open())
 			{
-				try
+				SCS::RPC::HeaderBuffer headerBuff;
+				co_await asio::async_read(self->socket, asio::buffer(headerBuff));
+
+				SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff.data());
+
+				const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
+				SCS::RPC::ReadBuffer bodyBuffer;
+				if (bodyBufferSize != 0)
 				{
-					SCS::RPC::HeaderBuffer headerBuff;
-					co_await asio::async_read(self->socket, asio::buffer(headerBuff));
+					bodyBuffer.reserve(bodyBufferSize);
 
-					SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff.data());
-
-					const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
-					SCS::RPC::ReadBuffer bodyBuffer;
-					if (bodyBufferSize != 0)
-					{
-						bodyBuffer.reserve(bodyBufferSize);
-
-						co_await asio::async_read(self->socket, asio::buffer(bodyBuffer));
-					}
-					SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
-
-					SCS::MessageDispatcher::registerMessage({ .client = self, .clientId = self->clientId, .socket = self->socket, .message = dr });
+					co_await asio::async_read(self->socket, asio::buffer(bodyBuffer, bodyBuffer.capacity()));
 				}
-				catch (...)
-				{
-					// TODO SCS-28: close this session
-					break;
-				}
+				SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
+
+				SCS::MessageDispatcher::registerMessage({ .client = self, .clientId = self->clientId, .socket = self->socket, .message = dr });
 			}
 		},
 		[self = shared_from_this()](std::exception_ptr e)
