@@ -54,13 +54,13 @@ DeserializationResult deserialize<RpcMessageType::idSync>(const ReadRawBuffer to
 	SCS::ClientIdType clientId;
 	SCS::Serialization::deserializeRaw(toDeserialize, clientId);
 
-	return RpcMessageBody<RpcMessageType::idSync>{.assignedId = clientId};
+	return IdSyncMessageBody{ .assignedId = clientId };
 }
 
 template<>
 DeserializationResult deserialize<RpcMessageType::ping>(const ReadRawBuffer toDeserialize)
 {
-	return RpcMessageBody<RpcMessageType::ping>{};
+	return PingMessageBody{};
 }
 
 };
