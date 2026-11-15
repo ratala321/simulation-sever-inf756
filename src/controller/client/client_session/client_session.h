@@ -3,14 +3,16 @@
 
 #include "client_id.h"
 #include "network_definitions.h"
+#include "socket_owner.h"
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 
 namespace SCS
 {
 
-class ClientSession
+class ClientSession : public std::enable_shared_from_this<ClientSession>, public SCS::SocketOwner
 {
 public:
 	explicit ClientSession(SocketTCP socket) noexcept;

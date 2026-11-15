@@ -10,20 +10,24 @@
 
 #include <spdlog/spdlog.h>
 
-void SCS::RPC::Processor::processRpcMessage(const SCS::ClientIdType clientId, SCS::SocketTCP& socket, const SCS::RPC::PingMessageBody& toProcess)
+void SCS::RPC::Processor::processRpcMessage(
+	std::shared_ptr<SCS::SocketOwner> client,
+	const SCS::ClientIdType clientId,
+	SCS::SocketTCP& socket,
+	const SCS::RPC::PingMessageBody& toProcess)
 {
 	spdlog::info("receive ping for client session `{}`", clientId);
 
 	asio::co_spawn(
 		socket.get_executor(),
-		[clientId, &socket] -> asio::awaitable<void>
+		[client, clientId, &socket] -> asio::awaitable<void>
 		{
 			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::ping> body{};
 			SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
 			co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
 			spdlog::info("Sent ping back to client session `{}`", clientId);
 		},
-		[clientId](std::exception_ptr e)
+		[client, clientId](std::exception_ptr e)
 		{
 			try
 			{

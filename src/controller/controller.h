@@ -8,6 +8,7 @@
 #include <asio/ip/tcp.hpp>
 
 #include <cstdint>
+#include <memory>
 
 namespace SCS
 {
@@ -36,7 +37,7 @@ public:
 	asio::awaitable<void> start();
 
 private:
-	std::vector<ClientSession> activeClientSessions;
+	std::vector<std::shared_ptr<ClientSession>> activeClientSessions;
 	Acceptor acceptor;
 };
 

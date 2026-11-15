@@ -5,5 +5,5 @@ add_library(id_sync OBJECT
 
 target_include_directories(id_sync PUBLIC .)
 
-target_link_libraries(id_sync PUBLIC client_datatype network_definitions rpc)
+target_link_libraries(id_sync PUBLIC client_datatype network_definitions network_interface rpc)
 target_link_libraries(id_sync PRIVATE spdlog::spdlog)

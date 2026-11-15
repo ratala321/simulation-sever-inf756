@@ -26,8 +26,8 @@ asio::awaitable<void> SCS::Controller::start()
 	{
 		asio::ip::tcp::socket newClientConnexion = co_await acceptor.async_accept(asio::use_awaitable);
 
-		ClientSession& session = activeClientSessions.emplace_back(std::move(newClientConnexion));
-		session.start();
-		session.listen();
+		auto& session = activeClientSessions.emplace_back(std::make_shared<ClientSession>(std::move(newClientConnexion)));
+		session->start();
+		session->listen();
 	}
 }

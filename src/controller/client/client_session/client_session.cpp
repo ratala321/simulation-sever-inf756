@@ -24,13 +24,20 @@ void SCS::ClientSession::start()
 {
 	asio::co_spawn(
 		socket.get_executor(),
-		[this] -> asio::awaitable<void>
+		[self = shared_from_this()] -> asio::awaitable<void>
 		{
-			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
-			SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
-			co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
+			try
+			{
+				SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ self->clientId };
+				SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
+				co_await asio::async_write(self->socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
+			}
+			catch (...)
+			{
+				spdlog::warn("client session `{}` start failed", self->clientId);
+			}
 		},
-		[](std::exception_ptr e)
+		[self = shared_from_this()](std::exception_ptr e)
 		{
 			try
 			{
@@ -38,8 +45,8 @@ void SCS::ClientSession::start()
 			}
 			catch (...)
 			{
-				spdlog::error("Can't properly start client session");
-				throw;
+				spdlog::error("Can't properly start client session `{}`");
+				// TODO SCS-28: close this session
 			}
 		}
 	);
@@ -49,29 +56,38 @@ void SCS::ClientSession::listen()
 {
 	asio::co_spawn(
 		socket.get_executor(),
-		[this] -> asio::awaitable<void>
+		[self = shared_from_this()] -> asio::awaitable<void>
 		{
-			while (socket.is_open())
+			// TODO SCS-28: break while when is pending deletion
+			while (self->socket.is_open())
 			{
-				SCS::RPC::HeaderBuffer headerBuff;
-				co_await asio::async_read(socket, asio::buffer(headerBuff));
-
-				SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff.data());
-
-				const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
-				SCS::RPC::ReadBuffer bodyBuffer;
-				if (bodyBufferSize != 0)
+				try
 				{
-					bodyBuffer.reserve(bodyBufferSize);
+					SCS::RPC::HeaderBuffer headerBuff;
+					co_await asio::async_read(self->socket, asio::buffer(headerBuff));
 
-					co_await asio::async_read(socket, asio::buffer(bodyBuffer));
+					SCS::RPC::RpcMessageHeader header = SCS::RPC::deserializeHeader(headerBuff.data());
+
+					const auto bodyBufferSize = SCS::RPC::getBodyBufferSize(header.type);
+					SCS::RPC::ReadBuffer bodyBuffer;
+					if (bodyBufferSize != 0)
+					{
+						bodyBuffer.reserve(bodyBufferSize);
+
+						co_await asio::async_read(self->socket, asio::buffer(bodyBuffer));
+					}
+					SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
+
+					SCS::MessageDispatcher::registerMessage({ .client = self, .clientId = self->clientId, .socket = self->socket, .message = dr });
 				}
-				SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
-
-				SCS::MessageDispatcher::registerMessage({ .clientId = clientId, .socket = socket, .message = dr });
+				catch (...)
+				{
+					// TODO SCS-28: close this session
+					break;
+				}
 			}
 		},
-		[this](std::exception_ptr e)
+		[self = shared_from_this()](std::exception_ptr e)
 		{
 			try
 			{
@@ -79,8 +95,8 @@ void SCS::ClientSession::listen()
 			}
 			catch (...)
 			{
-				spdlog::error("Can't listen to server via client session with id : {}", clientId);
-				throw;
+				spdlog::error("Can't listen to server via client session with id : {}", self->clientId);
+				// TODO SCS-28: close this session
 			}
 		}
 	);

@@ -18,7 +18,7 @@ void registerMessage(MessageData toRegister)
 			[](const std::monostate) {},
 			[&toRegister](const auto& msg)
 			{
-				SCS::RPC::Processor::processRpcMessage(toRegister.clientId, toRegister.socket, msg);
+				SCS::RPC::Processor::processRpcMessage(toRegister.client, toRegister.clientId, toRegister.socket, msg);
 			},
 		},
 		toRegister.message
