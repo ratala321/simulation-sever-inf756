@@ -84,6 +84,12 @@ struct MockupClientContext
 	Endpoint endpoint;
 };
 
+void runServer()
+{
+	const char* argv[2] = { "127.0.0.1", "8080" };
+	run(2, const_cast<char**>(argv));
+}
+
 };
 
 class IntegrationTestSuite : public ::testing::Test {
@@ -97,16 +103,7 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 		bool testDone = false;
 		std::atomic<bool> receivedIdSync = false;
 
-		std::thread tserver{ [&m, &cv, &testDone]()
-			{
-				const char* argv[2] = {
-					"127.0.0.1",
-					"8080"
-				};
-
-				run(2, const_cast<char**>(argv));
-			}
-		};
+		std::thread tserver{ [] { runServer(); } };
 
 		std::this_thread::sleep_for(std::chrono::microseconds(1));
 
