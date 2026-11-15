@@ -13,7 +13,8 @@ FetchContent_MakeAvailable(external-googletest)
 
 add_executable(unit_tests
     example.cpp
+    serialization.cpp
 )
-target_link_libraries(unit_tests PRIVATE simulation_server gtest_main)
+target_link_libraries(unit_tests PRIVATE simulation_server serialization gtest_main)
 
 gtest_discover_tests(unit_tests)
