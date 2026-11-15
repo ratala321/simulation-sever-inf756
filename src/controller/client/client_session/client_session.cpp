@@ -93,6 +93,11 @@ void SCS::ClientSession::listen()
 			{
 				if (e) { std::rethrow_exception(e); }
 			}
+			catch (const std::exception& ex)
+			{
+				spdlog::error("Can't listen to server via client session with id `{}`: {}", self->clientId, ex.what());
+				// TODO SCS-28: close this session
+			}
 			catch (...)
 			{
 				spdlog::error("Can't listen to server via client session with id : {}", self->clientId);
