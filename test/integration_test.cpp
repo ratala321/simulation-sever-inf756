@@ -24,6 +24,12 @@
 namespace
 {
 
+const char* testArgv[2] = {
+	"127.0.0.1",
+	"8080"
+};
+
+
 struct MockupClientController
 {
 	explicit MockupClientController(SCS::SocketTCP socket) : socket{ std::move(socket) }
@@ -86,8 +92,7 @@ struct MockupClientContext
 
 void runServer()
 {
-	const char* argv[2] = { "127.0.0.1", "8080" };
-	run(2, const_cast<char**>(argv));
+	run(2, const_cast<char**>(testArgv));
 }
 
 };
@@ -110,11 +115,7 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 		std::thread tclient{
 			[&m, &cv, &testDone, &receivedIdSync]
 			{
-				const char* argv[2] = {
-					"127.0.0.1",
-					"8080"
-				};
-				MockupClientContext clientContext{ argv };
+				MockupClientContext clientContext{ testArgv };
 
 				auto clientController = clientContext.createClient();
 
