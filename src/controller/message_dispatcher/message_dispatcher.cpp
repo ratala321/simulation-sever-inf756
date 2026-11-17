@@ -12,22 +12,22 @@ namespace SCS::MessageDispatcher
 
 asio::awaitable<void> registerMessage(MessageData toRegister)
 {
-	std::visit(
+	co_await std::visit(
 		SCS::Lang::Visitor
 		{
-			[](const std::monostate) -> asio::awaitable<void> {co_return;},
+			[](const std::monostate) -> asio::awaitable<void>
+			{
+				co_return;
+			},
 			[&toRegister](const auto& msg) -> asio::awaitable<void>
 			{
 				// TODO SCS-29: send to message_write_queue or message_write_pump
 				// thread or coroutine ? imo thread is better.
-				SCS::RPC::Processor::processRpcMessage(toRegister.client, toRegister.clientId, toRegister.socket, msg);
-				co_return;
+				co_await SCS::RPC::Processor::processRpcMessage(toRegister.client, toRegister.clientId, toRegister.socket, msg);
 			},
 		},
 		toRegister.message
 	);
-
-	co_return;
 }
 
 };
