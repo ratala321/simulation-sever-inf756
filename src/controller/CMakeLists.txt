@@ -12,6 +12,7 @@ add_subdirectory(rpc)
 
 add_subdirectory(message_processor)
 add_subdirectory(message_dispatcher)
+add_subdirectory(message_channel)
 
 add_subdirectory(network)
 
