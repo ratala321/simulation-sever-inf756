@@ -6,6 +6,8 @@
 #include "socket_owner.h"
 #include "rpc_message_body.h"
 
+#include <asio/awaitable.hpp>
+
 #include <memory>
 
 namespace SCS::MessageDispatcher
@@ -19,7 +21,7 @@ struct MessageData
 	const SCS::RPC::DeserializationResult& message;
 };
 
-void registerMessage(MessageData toRegister);
+asio::awaitable<void> registerMessage(MessageData toRegister);
 
 };
 

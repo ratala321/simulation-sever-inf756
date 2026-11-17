@@ -16,7 +16,7 @@
 #include <spdlog/spdlog.h>
 
 SCS::ClientSession::ClientSession(SocketTCP socket) noexcept
-	: socket{ std::move(socket) }, clientId{ ++clientIdCounter }
+	: clientId{ ++clientIdCounter }, socket{ std::move(socket) }, channel{ socket.get_executor(), 128 }
 {
 }
 
@@ -24,17 +24,13 @@ void SCS::ClientSession::start()
 {
 	asio::co_spawn(
 		socket.get_executor(),
-		[self = shared_from_this()] -> asio::awaitable<void>
+		[self = shared_from_this()]() -> asio::awaitable<void>
 		{
-			try
+			while (self->socket.is_open())
 			{
-				SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ self->clientId };
-				SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
-				co_await asio::async_write(self->socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
-			}
-			catch (...)
-			{
-				spdlog::warn("client session `{}` start failed", self->clientId);
+				SCS::RPC::DeserializationResult dr = co_await self->channel.async_receive(asio::use_awaitable);
+
+				co_await SCS::MessageDispatcher::registerMessage({ .client = self, .clientId = self->clientId, .socket = self->socket, .message = dr });
 			}
 		},
 		[self = shared_from_this()](std::exception_ptr e)
@@ -43,13 +39,22 @@ void SCS::ClientSession::start()
 			{
 				if (e) { std::rethrow_exception(e); }
 			}
+			catch (std::exception& ex)
+			{
+				spdlog::error("Channel of client session `{}` had an error : `{}`", self->clientId, ex.what());
+				// TODO SCS-28: close this session
+			}
 			catch (...)
 			{
-				spdlog::error("Can't properly start client session `{}`");
+				spdlog::error("Channel of client session `{}` had an error.", self->clientId);
 				// TODO SCS-28: close this session
 			}
 		}
 	);
+
+	SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
+	SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
+	asio::write(socket, asio::buffer(buffer));
 }
 
 void SCS::ClientSession::listen()
@@ -76,7 +81,7 @@ void SCS::ClientSession::listen()
 				}
 				SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
 
-				SCS::MessageDispatcher::registerMessage({ .client = self, .clientId = self->clientId, .socket = self->socket, .message = dr });
+				self->channel.try_send(asio::error_code{}, std::move(dr));
 			}
 		},
 		[self = shared_from_this()](std::exception_ptr e)

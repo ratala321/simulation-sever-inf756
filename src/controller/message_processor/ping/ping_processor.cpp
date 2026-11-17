@@ -10,7 +10,7 @@
 
 #include <spdlog/spdlog.h>
 
-void SCS::RPC::Processor::processRpcMessage(
+asio::awaitable<void> SCS::RPC::Processor::processRpcMessage(
 	std::shared_ptr<SCS::SocketOwner> client,
 	const SCS::ClientIdType clientId,
 	SCS::SocketTCP& socket,
@@ -18,26 +18,10 @@ void SCS::RPC::Processor::processRpcMessage(
 {
 	spdlog::info("receive ping for client session `{}`", clientId);
 
-	asio::co_spawn(
-		socket.get_executor(),
-		[client, clientId, &socket] -> asio::awaitable<void>
-		{
-			SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::ping> body{};
-			SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
-			co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
-			spdlog::info("Sent ping back to client session `{}`", clientId);
-		},
-		[client, clientId](std::exception_ptr e)
-		{
-			try
-			{
-				if (e) { std::rethrow_exception(e); }
-			}
-			catch (...)
-			{
-				spdlog::error("Can't ping back client session `{}`", clientId);
-				throw;
-			}
-		}
-	);
+	SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::ping> body{};
+	SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
+
+	co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
+
+	spdlog::info("Sent ping back to client session `{}`", clientId);
 }

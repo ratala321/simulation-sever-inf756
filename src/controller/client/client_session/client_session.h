@@ -2,6 +2,7 @@
 #define SCS_CLIENT_SESSION
 
 #include "client_id.h"
+#include "message_channel.h"
 #include "network_definitions.h"
 #include "socket_owner.h"
 
@@ -29,6 +30,7 @@ private:
 
 	SocketTCP socket;
 	SCS::ClientIdType clientId;
+	MessageChannel channel;
 };
 
 };

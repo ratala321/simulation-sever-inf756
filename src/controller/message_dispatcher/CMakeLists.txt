@@ -7,3 +7,5 @@ target_include_directories(message_dispatcher PUBLIC .)
 
 target_link_libraries(message_dispatcher PUBLIC client_datatype network_definitions network_interface rpc)
 target_link_libraries(message_dispatcher PRIVATE lang message_processor)
+
+target_link_libraries(message_dispatcher PUBLIC asio)

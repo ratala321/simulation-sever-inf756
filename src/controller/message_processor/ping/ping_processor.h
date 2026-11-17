@@ -6,11 +6,13 @@
 #include "socket_owner.h"
 #include "rpc_message_body.h"
 
+#include <asio/awaitable.hpp>
+
 #include <memory>
 
 namespace SCS::RPC::Processor
 {
-	void processRpcMessage(
+	asio::awaitable<void> processRpcMessage(
 		std::shared_ptr<SCS::SocketOwner> client,
 		const SCS::ClientIdType clientId,
 		SCS::SocketTCP& socket,
