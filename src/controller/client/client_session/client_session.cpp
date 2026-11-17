@@ -75,9 +75,9 @@ void SCS::ClientSession::listen()
 				SCS::RPC::ReadBuffer bodyBuffer;
 				if (bodyBufferSize != 0)
 				{
-					bodyBuffer.reserve(bodyBufferSize);
+					bodyBuffer.resize(bodyBufferSize);
 
-					co_await asio::async_read(self->socket, asio::buffer(bodyBuffer, bodyBuffer.capacity()));
+					co_await asio::async_read(self->socket, asio::buffer(bodyBuffer));
 				}
 				SCS::RPC::DeserializationResult dr = SCS::RPC::deserializeBody(header, bodyBuffer.data());
 

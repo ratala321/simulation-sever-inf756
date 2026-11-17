@@ -46,8 +46,8 @@ struct MockupClientController
 		SCS::RPC::ReadBuffer buffer;
 		if (s != 0)
 		{
-			buffer.reserve(s);
-			co_await asio::async_read(socket, asio::buffer(buffer, buffer.capacity()));
+			buffer.resize(s);
+			co_await asio::async_read(socket, asio::buffer(buffer));
 		}
 
 		co_return SCS::RPC::deserializeBody(header, buffer.data());
