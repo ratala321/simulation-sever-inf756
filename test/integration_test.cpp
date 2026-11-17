@@ -217,13 +217,13 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 
 						std::visit(
 							SCS::Lang::Visitor{
-								[](auto&) { std::cerr << "sync received wrong message type in PingServerRespondsToClient :c\n";},
+								[](auto&) { std::cout << "sync before ping";},
 								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
 							},
 							sync
 						);
 
-						//co_await clientController.sendMessage<SCS::RPC::RpcMessageType::ping>();
+						co_await clientController.sendMessage<SCS::RPC::RpcMessageType::ping>();
 
 						const auto dr = co_await clientController.readNextMessage();
 
@@ -233,39 +233,6 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
 							},
 							dr
-						);
-
-						const auto hello = co_await clientController.readNextMessage();
-
-						std::visit(
-							SCS::Lang::Visitor{
-								[](auto&) { std::cerr << "hello received wrong message type in PingServerRespondsToClient :c\n";},
-								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
-							},
-							hello
-						);
-						std::cout << "hello called" << std::endl;
-
-						const auto nani = co_await clientController.readNextMessage();
-
-						std::visit(
-							SCS::Lang::Visitor{
-								[](auto&) { std::cerr << "nani received wrong message type in PingServerRespondsToClient :c\n";},
-								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
-							},
-							nani
-						);
-						std::cout << "nani called" << std::endl;
-
-						const auto wtf = co_await clientController.readNextMessage();
-						std::cout << "wtf called" << std::endl;
-
-						std::visit(
-							SCS::Lang::Visitor{
-								[](auto&) { std::cerr << "wtf received wrong message type in PingServerRespondsToClient :c\n";},
-								[&receivedPing](const SCS::RPC::PingMessageBody&) { receivedPing = true; },
-							},
-							wtf
 						);
 
 						{
@@ -295,7 +262,7 @@ TEST_F(IntegrationTestSuite, PingServerRespondsToClient) {
 
 		{
 			std::unique_lock lock{ m };
-			cv.wait_for(lock, std::chrono::seconds(10), [&testDone] {return testDone;});
+			cv.wait_for(lock, std::chrono::seconds(2), [&testDone] {return testDone;});
 		}
 
 		std::raise(SIGINT);
