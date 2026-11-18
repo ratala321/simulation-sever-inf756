@@ -18,7 +18,7 @@ asio::awaitable<void> SCS::RPC::Processor::processRpcMessage(
 {
 	spdlog::info("receive ping for client session `{}`", clientId);
 
-	SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::ping> body{};
+	SCS::RPC::MessageRequestBody<SCS::RPC::RpcMessageType::ping> body{};
 	SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
 
 	co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));

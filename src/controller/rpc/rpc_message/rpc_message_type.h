@@ -12,6 +12,8 @@ enum class RpcMessageType : uint16_t
 	idSync = 0,
 	// Sent from client to signal the server. The server then signal back to the client.
 	ping = 1,
+	// Sent from client to start a simulation. The configuration of the simulation is specified in the body.
+	startSimulation = 2,
 };
 
 };

@@ -27,9 +27,9 @@ size_t getBodyBufferSize(const RpcMessageType type)
 	switch (type)
 	{
 	case RpcMessageType::idSync:
-		return std::is_empty_v<RpcMessageBody<RpcMessageType::idSync>> ? 0 : sizeof(RpcMessageBody<RpcMessageType::idSync>);
+		return std::is_empty_v<MessageRequestBody<RpcMessageType::idSync>> ? 0 : sizeof(MessageRequestBody<RpcMessageType::idSync>);
 	case RpcMessageType::ping:
-		return std::is_empty_v<RpcMessageBody<RpcMessageType::ping>> ? 0 : sizeof(RpcMessageBody<RpcMessageType::ping>);
+		return std::is_empty_v<MessageRequestBody<RpcMessageType::ping>> ? 0 : sizeof(MessageRequestBody<RpcMessageType::ping>);
 	}
 
 	throw non_supported_message_type_for_deserialization{};

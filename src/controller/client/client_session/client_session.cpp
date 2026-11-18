@@ -52,7 +52,7 @@ void SCS::ClientSession::start()
 		}
 	);
 
-	SCS::RPC::RpcMessageBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
+	SCS::RPC::MessageRequestBody<SCS::RPC::RpcMessageType::idSync> body{ clientId };
 	SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
 	asio::write(socket, asio::buffer(buffer));
 }

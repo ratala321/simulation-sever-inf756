@@ -2,8 +2,7 @@
 
 #include "visitor.h"
 
-#include "id_sync_processor.h"
-#include "ping_processor.h"
+#include "all_message_processor.h"
 
 #include <variant>
 

@@ -56,7 +56,7 @@ struct MockupClientController
 	template<SCS::RPC::RpcMessageType T>
 	asio::awaitable<void> sendMessage()
 	{
-		SCS::RPC::RpcMessageBody<T> body{};
+		SCS::RPC::MessageRequestBody<T> body{};
 		SCS::RPC::WriteBuffer buffer = SCS::RPC::serialize(body);
 		co_await asio::async_write(socket, asio::buffer(buffer), asio::cancel_after(std::chrono::seconds(5)));
 	}

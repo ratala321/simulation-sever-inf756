@@ -9,9 +9,9 @@ namespace SCS::RPC
 {
 
 template<RpcMessageType T>
-WriteBuffer serialize(const RpcMessageBody<T>&)
+WriteBuffer serialize(const MessageRequestBody<T>&)
 {
-	static_assert(false, "non existing serialization for RpcMessageBody of type provided");
+	static_assert(false, "non existing serialization for MessageResponseBody of type provided");
 	return {};
 }
 
