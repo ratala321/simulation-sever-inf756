@@ -3,7 +3,10 @@
 
 namespace SCS
 {
-	class SocketOwner {};
+	struct SocketOwner
+	{
+		virtual ~SocketOwner() = default;
+	};
 };
 
 #endif // !SCS_SOCKET_OWNER
