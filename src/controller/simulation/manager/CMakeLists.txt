@@ -1,0 +1,11 @@
+add_library(simulation_manager STATIC
+	simulation_manager.h
+	simulation_manager.cpp
+)
+
+add_subdirectory(loop_runner)
+target_link_libraries(simulation_manager PRIVATE simulation_loop_runner)
+
+target_link_libraries(simulation_manager PUBLIC simulation_session simulation_definitions)
+
+target_include_directories(simulation_manager PUBLIC .)

@@ -2,6 +2,7 @@
 
 #include "rpc_message_buffer.h"
 #include "rpc_serialize.h"
+#include "simulation_manager.h"
 
 #include <asio/buffer.hpp>
 #include <asio/co_spawn.hpp>
@@ -18,6 +19,11 @@ asio::awaitable<void> SCS::RPC::Processor::processRpcMessage(
 {
 	spdlog::info("receive start simulation for client session `{}`", clientId);
 
-	// TODO SCS-31: process json, start simulation for client using settings;
+	// TODO SCS-32: process json of world state and ruleset.
+
+	const SimulationId simulationId = SCS::SimulationManager::instance().addSimulation();
+
+	// TODO SCS-33: response back SimulationId to client;
+
 	co_return;
 }

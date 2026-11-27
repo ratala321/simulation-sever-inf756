@@ -6,4 +6,4 @@ add_library(start_simulation OBJECT
 target_include_directories(start_simulation PUBLIC .)
 
 target_link_libraries(start_simulation PUBLIC client_datatype network_definitions network_interface rpc)
-target_link_libraries(start_simulation PRIVATE spdlog::spdlog)
+target_link_libraries(start_simulation PRIVATE spdlog::spdlog simulation_manager)

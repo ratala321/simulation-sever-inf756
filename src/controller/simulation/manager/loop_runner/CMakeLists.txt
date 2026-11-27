@@ -1,0 +1,8 @@
+add_library(simulation_loop_runner OBJECT
+	simulation_loop_runner.h
+	simulation_loop_runner.cpp
+)
+
+target_link_libraries(simulation_loop_runner PUBLIC simulation_session)
+
+target_include_directories(simulation_loop_runner PUBLIC .)

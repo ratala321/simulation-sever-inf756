@@ -10,6 +10,8 @@ target_link_libraries(controller PUBLIC client_session)
 
 add_subdirectory(rpc)
 
+add_subdirectory(simulation)
+
 add_subdirectory(message_processor)
 add_subdirectory(message_dispatcher)
 add_subdirectory(message_channel)
