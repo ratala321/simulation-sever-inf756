@@ -3,6 +3,7 @@
 
 #include "rpc_message_type.h"
 #include "client_id.h"
+#include "simulation_definitions.h"
 
 #include <cstdint>
 
@@ -14,6 +15,7 @@ namespace SCS::RPC
 	template<>
 	struct MessageResponseBody<RpcMessageType::startSimulation>
 	{
+		SCS::SimulationId simulationId;
 		// network format of boolean. 1 (true) means start simulation had no error. 0 (false) means simulation wasn't able to start.
 		uint8_t isStarted;
 	};

@@ -32,4 +32,20 @@ WriteBuffer serialize(const PingMessageBody& toSerialize)
 	return { buffer, buffer + sizeOfBuffer };
 }
 
+template<>
+WriteBuffer serialize(const StartSimulationResponseBody& toSerialize)
+{
+	using RawEnumType = std::underlying_type_t<RpcMessageType>;
+
+	static constexpr size_t sizeOfBuffer =
+		sizeof(RpcMessageType::startSimulation) + sizeof(StartSimulationResponseBody::isStarted) + sizeof(StartSimulationResponseBody::simulationId);
+	uint8_t buffer[sizeOfBuffer];
+
+	auto temp = SCS::Serialization::serializeRaw(buffer, static_cast<RawEnumType>(RpcMessageType::startSimulation));
+	temp = SCS::Serialization::serializeRaw(temp, toSerialize.simulationId);
+	SCS::Serialization::serializeRaw(temp, toSerialize.isStarted);
+
+	return { buffer, buffer + sizeOfBuffer };
+}
+
 };

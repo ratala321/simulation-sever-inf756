@@ -6,4 +6,4 @@ add_library(rpc_message_body INTERFACE
 
 target_include_directories(rpc_message_body INTERFACE .)
 
-target_link_libraries(rpc_message_body INTERFACE client_datatype)
+target_link_libraries(rpc_message_body INTERFACE client_datatype simulation_definitions)
