@@ -21,6 +21,7 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
+        "OPENSSL_ROOT_DIR": "C:/OpenSSL/openssl",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
       },
       "vendor": {
@@ -46,6 +47,7 @@
       },
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
+        "OPENSSL_ROOT_DIR": "C:/OpenSSL/openssl",
         "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
       },
       "vendor": {

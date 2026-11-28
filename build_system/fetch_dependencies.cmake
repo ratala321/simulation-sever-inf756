@@ -18,3 +18,12 @@ FetchContent_MakeAvailable(external-spdlog)
 
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
+
+FetchContent_Declare(
+    external-cpp-httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG v0.67.0
+    GIT_SHALLOW TRUE
+    FIND_PACKAGE_ARGS NAMES cpp-httplib
+)
+FetchContent_MakeAvailable(external-cpp-httplib)

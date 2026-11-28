@@ -8,6 +8,8 @@ target_include_directories(controller PUBLIC .)
 add_subdirectory(client)
 target_link_libraries(controller PUBLIC client_session)
 
+add_subdirectory(map_client)
+
 add_subdirectory(rpc)
 
 add_subdirectory(simulation)
